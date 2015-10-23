@@ -31,17 +31,19 @@ static void svg_tinted_background_image(FILE *f, const char *filename)
 
 static void svg_polygon(FILE *f, const s2o_point *outline, int length)
 {
+	int i;
 	if (!f) return;
 	fprintf(f, "\t<polygon points=\"");
-	for (int i = 0; i < length; i++)
+	for (i = 0; i < length; i++)
 		fprintf(f, "%d,%d ", outline[i].x, outline[i].y);
 	fprintf(f, "\" style=\"fill:none;stroke:red;stroke-width:1\" />\n");
 }
 
 static void svg_points(FILE *f, const s2o_point *outline, int length)
 {
+	int i;
 	if (!f) return;
-	for (int i = 0; i < length; i++)
+	for (i = 0; i < length; i++)
 		fprintf(f, "\t<circle cx=\"%d\" cy=\"%d\" r=\"0.6\" />\n", outline[i].x, outline[i].y);
 }
 

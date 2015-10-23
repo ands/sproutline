@@ -191,8 +191,9 @@ static const s2o_point s2o_direction_to_pixel_offset[] = { {1,0}, {1,-1}, {0,-1}
 S2ODEF s2o_uc * s2o_rgba_to_alpha(const s2o_uc *data, int w, int h)
 {
 	s2o_uc *result = (s2o_uc*)S2O_MALLOC(w * h);
-	for (int y = 0; y < h; y++)
-		for (int x = 0; x < w; x++)
+	int x, y;
+	for (y = 0; y < h; y++)
+		for (x = 0; x < w; x++)
 			result[y * w + x] = data[(y * w + x) * 4 + 3];
 	return result;
 }
@@ -200,8 +201,9 @@ S2ODEF s2o_uc * s2o_rgba_to_alpha(const s2o_uc *data, int w, int h)
 S2ODEF s2o_uc * s2o_alpha_to_thresholded(const s2o_uc *data, int w, int h, s2o_uc threshold)
 {
 	s2o_uc *result = (s2o_uc*)S2O_MALLOC(w * h);
-	for (int y = 0; y < h; y++)
-		for (int x = 0; x < w; x++)
+	int x, y;
+	for (y = 0; y < h; y++)
+		for (x = 0; x < w; x++)
 			result[y * w + x] = data[y * w + x] >= threshold ? 255 : 0;
 	return result;
 }
@@ -209,15 +211,16 @@ S2ODEF s2o_uc * s2o_alpha_to_thresholded(const s2o_uc *data, int w, int h, s2o_u
 S2ODEF s2o_uc * s2o_thresholded_to_outlined(const s2o_uc *data, int w, int h)
 {
 	s2o_uc *result = (s2o_uc*)S2O_MALLOC(w * h);
-	for (int x = 0; x < w; x++)
+	int x, y;
+	for (x = 0; x < w; x++)
 	{
 		result[x] = data[x];
 		result[(h - 1) * w + x] = data[(h - 1) * w + x];
 	}
-	for (int y = 1; y < h - 1; y++)
+	for (y = 1; y < h - 1; y++)
 	{
 		result[y * w] = data[y * w];
-		for (int x = 1; x < w - 1; x++)
+		for (x = 1; x < w - 1; x++)
 		{
 			if (data[y * w + x] &&
 				(
@@ -242,14 +245,15 @@ S2ODEF s2o_uc * s2o_thresholded_to_outlined(const s2o_uc *data, int w, int h)
 // outline path procedures
 static s2o_bool s2o_find_first_filled_pixel(const s2o_uc *data, int w, int h, s2o_point *first)
 {
-	for (short y = 0; y < h; y++)
+	int x, y;
+	for (y = 0; y < h; y++)
 	{
-		for (short x = 0; x < w; x++)
+		for (x = 0; x < w; x++)
 		{
 			if (data[y * w + x])
 			{
-				first->x = x;
-				first->y = y;
+				first->x = (short)x;
+				first->y = (short)y;
 				return 1;
 			}
 		}
@@ -261,7 +265,8 @@ static s2o_bool s2o_find_next_filled_pixel(const s2o_uc *data, int w, int h, s2o
 {
 	// turn around 180°, then make a clockwise scan for a filled pixel
 	*dir = S2O_DIRECTION_OPPOSITE(*dir);
-	for (int i = 0; i < 8; i++)
+	int i;
+	for (i = 0; i < 8; i++)
 	{
 		S2O_POINT_ADD(*next, current, s2o_direction_to_pixel_offset[*dir]);
 
@@ -302,7 +307,8 @@ restart:
 		{
 			// find loop connection
 			s2o_bool found = 0;
-			for (int i = 0; i < count / 2; i++) // only allow big loops
+			int i;
+			for (i = 0; i < count / 2; i++) // only allow big loops
 			{
 				if (S2O_POINT_IS_NEXT_TO(current, outline[i]))
 				{
@@ -320,7 +326,8 @@ restart:
 				// go backwards until we see outline pixels again
 				dir = S2O_DIRECTION_OPPOSITE(dir);
 				count--; // back up
-				for(int prev = count; prev >= 0; prev--)
+				int prev;
+				for(prev = count; prev >= 0; prev--)
 				{
 					current = outline[prev];
 					outline[count++] = current; // add our current point to the outline again
@@ -341,10 +348,11 @@ restart:
 S2ODEF void s2o_distance_based_path_simplification(s2o_point *outline, int *outline_length, float distance_threshold)
 {
 	int length = *outline_length;
-	for (int l = length / 2 /*length - 1*/; l > 1; l--)
+	int l;
+	for (l = length / 2 /*length - 1*/; l > 1; l--)
 	{
-		int b = l;
-		for (int a = 0; a < length; a++)
+		int a, b = l;
+		for (a = 0; a < length; a++)
 		{
 			s2o_point ab;
 			S2O_POINT_SUB(ab, outline[b], outline[a]);
@@ -374,16 +382,17 @@ S2ODEF void s2o_distance_based_path_simplification(s2o_point *outline, int *outl
 
 				if (found)
 				{
+					int i;
 					if (a < b)
 					{
-						for (int i = 0; i < length - b; i++)
+						for (i = 0; i < length - b; i++)
 							outline[a + i + 1] = outline[b + i];
 						length -= b - a - 1;
 					}
 					else
 					{
 						length = a - b + 1;
-						for (int i = 0; i < length; i++)
+						for (i = 0; i < length; i++)
 							outline[i] = outline[b + i];
 					}
 					if (l >= length)

@@ -68,16 +68,13 @@ int main(int argc, char **argv)
 	svg_tinted_background_image(svg, filename);
 
 	s2o_point *outline = s2o_extract_outline_path(outlined, w, h, &l, 0);
-	while(outline)
+	while(l)
 	{
-		if (l > 2)
-		{
-			int l0 = l;
-			s2o_distance_based_path_simplification(outline, &l, 0.4f);
-			printf("simplified outline: %d -> %d\n", l0, l);
-			svg_polygon(svg, outline, l);
-			svg_points(svg, outline, l);
-		}
+		int l0 = l;
+		s2o_distance_based_path_simplification(outline, &l, 0.4f);
+		printf("simplified outline: %d -> %d\n", l0, l);
+		svg_polygon(svg, outline, l);
+		svg_points(svg, outline, l);
 
 		outline = s2o_extract_outline_path(outlined, w, h, &l, outline);
 	};

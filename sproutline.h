@@ -40,7 +40,7 @@
 
  ============================    Contributors    =========================
 
- Andreas Mantler
+ Andreas Mantler (ands)
 
 License:
    This software is in the public domain. Where that dedication is not
@@ -64,17 +64,15 @@ License:
 //    unsigned char *thresholded = s2o_alpha_to_thresholded(alpha, w, h, ALPHA_THRESHOLD);
 //    unsigned char *outlined = s2o_thresholded_to_outlined(thresholded, w, h);
 //    s2o_point *outline = s2o_extract_outline_path(outlined, w, h, &l, 0);
-//    while(outline)
+//    while(l)
 //    {
-//        if (l > 2)
-//        {
-//            s2o_distance_based_path_simplification(outline, &l, DISTANCE_THRESHOLD);
-//            // ... process outline here ...
-//            // ... l = number of points in outline
-//            // ... ALPHA_THRESHOLD = 1..255 (the min value to be considered solid)
-//            // ... DISTANCE_THRESHOLD = 0.0f..Inf (~0.5f is a suitable value)
-//            // ... a greater value results in fewer points in the output
-//        }
+//        s2o_distance_based_path_simplification(outline, &l, DISTANCE_THRESHOLD);
+//        // ... process outline here ...
+//        // ... l = number of points in outline
+//        // ... ALPHA_THRESHOLD = 1..255 (the min value to be considered solid)
+//        // ... DISTANCE_THRESHOLD = 0.0f..Inf (~0.5f is a suitable value)
+//        // ... a greater value results in fewer points in the output
+//        
 //        outline = s2o_extract_outline_path(outlined, w, h, &l, outline);
 //    };
 //    free(outline);
@@ -103,7 +101,7 @@ License:
 //    The procedure scans the input data from top to bottom and starts extracting the first outline it finds.
 //    The pixels corresponding to the extracted outline are set to 0 in the input, so that a subsequent call to
 //    s2o_extract_outline_path extracts a different outline.
-//    The return value is NULL if no outline was found.
+//    The length is set to 0 if no outline was found.
 //
 // s2o_distance_based_path_simplification:
 //    Expects an 's2o_point *' to memory of l outline points.
@@ -280,16 +278,19 @@ static s2o_bool s2o_find_next_filled_pixel(const s2o_uc *data, int w, int h, s2o
 
 S2ODEF s2o_point * s2o_extract_outline_path(s2o_uc *data, int w, int h, int *point_count, s2o_point *reusable_outline)
 {
+	s2o_point *outline = reusable_outline;
+	if (!outline)
+		outline = (s2o_point*)S2O_MALLOC(w * h * sizeof(s2o_point));
+
 	s2o_point current, next;
+
+restart:
 	if (!s2o_find_first_filled_pixel(data, w, h, &current))
 	{
 		*point_count = 0;
-		return 0;
+		return outline;
 	}
 
-	s2o_point *outline = reusable_outline;
-	if (!reusable_outline)
-		outline = (s2o_point*)S2O_MALLOC(w * h * sizeof(s2o_point));
 	int count = 0;
 	s2o_direction dir = 0;
 
@@ -301,7 +302,7 @@ S2ODEF s2o_point * s2o_extract_outline_path(s2o_uc *data, int w, int h, int *poi
 		{
 			// find loop connection
 			s2o_bool found = 0;
-			for (int i = 0; i < count - 2; i++)
+			for (int i = 0; i < count / 2; i++) // only allow big loops
 			{
 				if (S2O_POINT_IS_NEXT_TO(current, outline[i]))
 				{
@@ -331,6 +332,8 @@ S2ODEF s2o_point * s2o_extract_outline_path(s2o_uc *data, int w, int h, int *poi
 		current = next;
 	}
 
+	if (count <= 2) // too small, discard and try again!
+		goto restart;
 	*point_count = count;
 	return outline;
 }

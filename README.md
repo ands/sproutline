@@ -1,6 +1,6 @@
 # Sproutline
 
-A library for sprite outline extraction and simplification.
+A small single-file library for sprite outline extraction and simplification for C/C++.
 
 **Input:** Sprite with an alpha channel.
 
@@ -8,7 +8,7 @@ A library for sprite outline extraction and simplification.
 
 *'sproutline.h'* is the whole library.
 It follows the stb philosophy.
-Everything else here is example usage.
+Everything else here is example code, an example image and this readme.
 
 # Pipeline
 ![Sproutline pipeline](https://github.com/ands/sproutline/raw/master/README_pipeline.png)

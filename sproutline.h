@@ -12,7 +12,7 @@
    #define S2O_IMPLEMENTATION
    #include "sproutline.h"
 
-   You can #define STBI_MALLOC to avoid using malloc
+   You can #define S2O_MALLOC to avoid using malloc
 
 
    QUICK NOTES:

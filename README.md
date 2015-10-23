@@ -1,4 +1,4 @@
-# sproutline
+# Sproutline
 
 A library for sprite outline extraction and simplification.
 
@@ -9,3 +9,6 @@ A library for sprite outline extraction and simplification.
 *'sproutline.h'* is the whole library.
 It follows the stb philosophy.
 Everything else here is example usage.
+
+# Pipeline
+![Sproutline pipeline](https://github.com/ands/sproutline/raw/master/README_pipeline.png)

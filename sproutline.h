@@ -208,6 +208,37 @@ S2ODEF s2o_uc * s2o_alpha_to_thresholded(const s2o_uc *data, int w, int h, s2o_u
 	return result;
 }
 
+S2ODEF s2o_uc * s2o_dilate_thresholded(const s2o_uc *data, int w, int h)
+{
+	int x, y, dx, dy, cx, cy;
+	s2o_uc *result = (s2o_uc*)S2O_MALLOC(w * h);
+	for (y = 0; y < h; y++)
+	{
+		for (x = 0; x < w; x++)
+		{
+			result[y * w + x] = 0;
+			for (dy = -1; dy <= 1; dy++)
+			{
+				for (dx = -1; dx <= 1; dx++)
+				{
+					cx = x + dx;
+					cy = y + dy;
+					if (cx >= 0 && cx < w && cy >= 0 && cy < h)
+					{
+						if (data[cy * w + cx])
+						{
+							result[y * w + x] = 255;
+							dy = 1;
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	return result;
+}
+
 S2ODEF s2o_uc * s2o_thresholded_to_outlined(const s2o_uc *data, int w, int h)
 {
 	s2o_uc *result = (s2o_uc*)S2O_MALLOC(w * h);
